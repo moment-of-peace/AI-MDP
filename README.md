@@ -1,2 +1,2 @@
 # AI-MDP
-Decision under uncertainty using markov decision process
+Decision under uncertainty using Markov Decision Process
