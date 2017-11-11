@@ -42,12 +42,13 @@ public class MySolver implements FundingAllocationAgent {
     
     public void doOfflineComputation() {
         rewards = getRewards();
-        HashMap<FundState, Double> previousValues = getInitValues(ventureNum, maxFund);
-        HashMap<FundState, Double> currentValues = new HashMap<FundState, Double>();
+        HashMap<FundState, Double> previousValues;
+        HashMap<FundState, Double> currentValues = getInitValues(ventureNum, maxFund);
         ArrayList<Double[][]> transfer = getTransMatrix();
         do {
-            valueIteration(previousValues, currentValues, transfer);
             previousValues = currentValues;
+            currentValues = new HashMap<FundState, Double>();
+            valueIteration(previousValues, currentValues, transfer);
         } while (!converge(previousValues, currentValues));
     }
     // Compute initial values using max immediate rewards
@@ -93,10 +94,9 @@ public class MySolver implements FundingAllocationAgent {
                                                           int numFortnightsLeft) {
         // Example code that allocates an additional $10 000 to each venture.
         // TODO Replace this with your own code.
-
         Integer[] states = policy.get(new FundState(manufacturingFunds));
         List<Integer> additionalFunding = new ArrayList<Integer>();
-        for (int i: states) {
+        for (Integer i: states) {
             additionalFunding.add(i);
         }
 /*
@@ -191,7 +191,7 @@ public class MySolver implements FundingAllocationAgent {
     private void valueIteration(HashMap<FundState, Double> previous, HashMap<FundState, Double> current, 
             ArrayList<Double[][]> transfer) {
         // TODO Auto-generated method stub
-        for (FundState s: current.keySet()) {
+        for (FundState s: previous.keySet()) {
             double maxValue = Double.NEGATIVE_INFINITY;
             double reward = 0;
             // compute immediate reward
@@ -199,7 +199,7 @@ public class MySolver implements FundingAllocationAgent {
                 reward += this.rewards.get(i)[s.states[i]];
             }
             // iterate all actions
-            for (FundState state: current.keySet()) {
+            for (FundState state: previous.keySet()) {
                 Integer[] action = state.states;
                 if (isValidAction(s, action)) {
                     double newValue = reward + this.discount*expectedValue(transfer, s, previous, action);
@@ -268,7 +268,7 @@ public class MySolver implements FundingAllocationAgent {
     private boolean converge(HashMap<FundState, Double> previous, HashMap<FundState, Double> current) {
         double diff = 0;
         for (FundState s: previous.keySet()) {
-            diff = diff + Math.abs(previous.get(s) - previous.get(s));
+            diff = diff + Math.abs(previous.get(s) - current.get(s));
         }
         return diff <= 0.0000001;
     }
@@ -293,10 +293,22 @@ class FundState {
     
     @Override
     public int hashCode() {
-        int h = 0;
+        int h = 1;
         for (int i = 0; i < states.length; i++) {
             h = 31*h + states[i];
         }
         return h;
+    }
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof FundState) {
+            FundState temp = (FundState)obj;
+            Integer[] states2 = temp.states;
+            for (int i = 0; i < states2.length; i++) {
+                if (this.states[i] != states2[i]) return false;
+            }
+            return true;
+        }
+        return false;
     }
 }
