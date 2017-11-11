@@ -23,6 +23,7 @@ public class MySolver implements FundingAllocationAgent {
     private double discount;
     private int ventureNum;
     private int maxFund;
+    private int maxAdd;
     private HashMap<FundState, Integer[]> policy;
     private ArrayList<Double[]> rewards;
     
@@ -33,6 +34,7 @@ public class MySolver implements FundingAllocationAgent {
         discount = spec.getDiscountFactor();
         ventureNum = ventureManager.getNumVentures();
         maxFund = ventureManager.getMaxManufacturingFunds();
+        maxAdd = ventureManager.getMaxAdditionalFunding();
         policy = new HashMap<FundState, Integer[]>();
         rewards = new ArrayList<Double[]>();
     }
@@ -193,13 +195,17 @@ public class MySolver implements FundingAllocationAgent {
             for (int i = 0; i < s.states.length; i++) {
                 reward += this.rewards.get(i)[s.states[i]];
             }
-            for (Integer[] action: allActions(s)) {
-                double newValue = reward + this.discount*expectedValue(transfer, s, previous, action);
-                if (newValue > maxValue) maxValue = newValue;
+            for (FundState state: current.keySet()) {
+                Integer[] action = state.states;
+                if (isValidAction(s, action)) {
+                    double newValue = reward + this.discount*expectedValue(transfer, s, previous, action);
+                    if (newValue > maxValue) maxValue = newValue;
+                }
             }
             current.put(s, maxValue);
         }
     }
+
     // find all valid actions based on current fund state
     private ArrayList<Integer[]> allActions(FundState s) {
         // TODO Auto-generated method stub
@@ -225,7 +231,13 @@ public class MySolver implements FundingAllocationAgent {
         // TODO Auto-generated method stub
         return false;
     }
-
+    
+    // return true only if sum(action) < maxAdd && sum(newState) < maxFund
+    private boolean isValidAction(FundState state, Integer[] action) {
+        // TODO Auto-generated method stub
+        return false;
+    }
+    
     // return true if the |values - previousValues| is small enough
     private boolean converge(HashMap<FundState, Double> previous, HashMap<FundState, Double> current) {
         return false;
