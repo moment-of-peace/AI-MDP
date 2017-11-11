@@ -225,8 +225,16 @@ public class MySolver implements FundingAllocationAgent {
     }
     
     private boolean isValidFund(FundState fund) {
-        // TODO Auto-generated method stub
-        return false;
+        int totalFund = 0;
+        for(int i=0; i<fund.states.length; i++){
+        	totalFund = totalFund + fund.states[i];
+        }
+    	
+    	if(totalFund<=maxFund){
+        	return true;
+        }else{
+            return false;
+        }
     }
     
     // return true only if sum(action) < maxAdd && sum(newState) < maxFund
