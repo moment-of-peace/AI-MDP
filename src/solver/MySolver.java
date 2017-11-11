@@ -158,18 +158,15 @@ public class MySolver implements FundingAllocationAgent {
     // immediate max reward of each fund state, use index to represent fund state
     private ArrayList<Double[]> getRewards() {
         // TODO Auto-generated method stub
-        int numVentures = probabilities.size();
         int rewardLength = ventureManager.getMaxAdditionalFunding() + 1;
         
         //rewards is predefined
-        
-        //delete later
-        
-        for (int i = 0; i <numVentures; i++) {
+     
+        for (int i = 0; i <probabilities.size(); i++) {
             Double[] reward = new Double[rewardLength];
-            for (int j = 0; j < rewardLength - 1; j++) {
+            for (int j = 0; j < rewardLength; j++) {
                 reward[j] = 0.0;
-                for (int k = 0; k < rewardLength - 1; k++) {
+                for (int k = 0; k < rewardLength; k++) {
                     double tempProb= probabilities.get(i).get(j, k);
                     //i is the venture number
                     double profit = spec.getSalePrices().get(i)*0.6;
