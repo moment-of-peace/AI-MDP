@@ -93,8 +93,12 @@ public class MySolver implements FundingAllocationAgent {
         // Example code that allocates an additional $10 000 to each venture.
         // TODO Replace this with your own code.
 
+        Integer[] states = policy.get(new FundState(manufacturingFunds));
         List<Integer> additionalFunding = new ArrayList<Integer>();
-
+        for (int i: states) {
+            additionalFunding.add(i);
+        }
+/*
         int totalManufacturingFunds = 0;
         for (int i : manufacturingFunds) {
             totalManufacturingFunds += i;
@@ -111,7 +115,7 @@ public class MySolver implements FundingAllocationAgent {
                 totalManufacturingFunds ++;
             }
         }
-
+*/
         return additionalFunding;
     }
     
@@ -189,14 +193,20 @@ public class MySolver implements FundingAllocationAgent {
         for (FundState s: current.keySet()) {
             double maxValue = Double.NEGATIVE_INFINITY;
             double reward = 0;
+            // compute immediate reward
             for (int i = 0; i < s.states.length; i++) {
                 reward += this.rewards.get(i)[s.states[i]];
             }
+            // iterate all actions
             for (FundState state: current.keySet()) {
                 Integer[] action = state.states;
                 if (isValidAction(s, action)) {
                     double newValue = reward + this.discount*expectedValue(transfer, s, previous, action);
-                    if (newValue > maxValue) maxValue = newValue;
+                    if (newValue > maxValue) {
+                        // update max value and policy
+                        maxValue = newValue;
+                        this.policy.put(s, action);
+                    }
                 }
             }
             current.put(s, maxValue);
@@ -237,7 +247,11 @@ public class MySolver implements FundingAllocationAgent {
     
     // return true if the |values - previousValues| is small enough
     private boolean converge(HashMap<FundState, Double> previous, HashMap<FundState, Double> current) {
-        return false;
+        double diff = 0;
+        for (FundState s: previous.keySet()) {
+            diff = diff + Math.abs(previous.get(s) - previous.get(s));
+        }
+        return diff <= 0.0000001;
     }
 }
 
@@ -251,7 +265,7 @@ class FundState {
         }
     }
     
-    public FundState(ArrayList<Integer> funds) {
+    public FundState(List<Integer> funds) {
         states = new Integer[funds.size()];
         for (int i = 0; i < funds.size(); i++) {
             states[i] = funds.get(i);
