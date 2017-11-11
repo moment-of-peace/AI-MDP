@@ -114,14 +114,74 @@ public class MySolver implements FundingAllocationAgent {
     }
     
     private ArrayList<Double[][]> getTransMatrix() {
-        // TODO Auto-generated method stub
-        return null;
+        //Get estimated number of orders matrices
+        List<Matrix> probabilitiesMatrix = spec.getProbabilities();
+        ArrayList<Double[][]> transFuncs = new ArrayList<Double[][]>();
+        
+        //For every probability matrix
+        for(Matrix matrix:probabilitiesMatrix){
+            //Iterate every data in matrix
+            int rows = matrix.getNumRows();
+            int cols = matrix.getNumCols();
+            
+            Double[][] transMatrix = new Double[rows][cols];
+            
+            //for each row
+            for(int j=0; j<rows; j++){
+ 
+                //for each column
+                for(int k=0; k<cols; k++){
+                    if(k>j){
+                        double t = 0;
+                        transMatrix[j][k] = t;
+                    }else if(k>0 && j>=k){
+                        double t = matrix.get(j, j-k);
+                        transMatrix[j][k] = t;
+                    }else if(k==0){
+                        double t=0;
+                        for(int i=j; i<cols; i++){
+                            t = t + matrix.get(j, i);
+                        }
+                        transMatrix[j][k] = t;
+                    }
+                }
+            }
+            
+            transFuncs.add(transMatrix);
+        }
+        
+        return transFuncs;
     }
-    
-    // immediate max reward of each fund state 
+
+    // immediate max reward of each fund state, use index to represent fund state
     private ArrayList<Double[]> getRewards() {
         // TODO Auto-generated method stub
-        return null;
+        int numVentures = probabilities.size();
+        int rewardLength = ventureManager.getMaxAdditionalFunding() + 1;
+        
+        //rewards is predefined
+        
+        //delete later
+        
+        for (int i = 0; i <numVentures; i++) {
+            Double[] reward = new Double[rewardLength];
+            for (int j = 0; j < rewardLength - 1; j++) {
+                reward[j] = 0.0;
+                for (int k = 0; k < rewardLength - 1; k++) {
+                    double tempProb= probabilities.get(i).get(j, k);
+                    //i is the venture number
+                    double profit = spec.getSalePrices().get(i)*0.6;
+                    int missed = Math.min(0, j-k);
+                    profit += missed*spec.getSalePrices().get(i)*0.25;
+                    
+                    //multiply??
+                    profit *= tempProb;
+                    reward[j] += profit;
+                }
+            }
+            rewards.add(reward);
+        }
+        return rewards;
     }
 
     private void valueIteration(HashMap<FundState, Double> previous, HashMap<FundState, Double> current, 

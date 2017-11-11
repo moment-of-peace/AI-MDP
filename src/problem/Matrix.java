@@ -29,5 +29,13 @@ public class Matrix {
 	public List<Double> getRow(int row) {
 		return Collections.unmodifiableList(data.get(row));
 	}
+	
+	public int getNumRows(){
+		return numRows;
+	}
+	
+	public int getNumCols(){
+		return numCols;
+	}
 
 }
