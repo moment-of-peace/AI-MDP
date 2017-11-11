@@ -253,13 +253,12 @@ public class MySolver implements FundingAllocationAgent {
         // TODO Auto-generated method stub
     	//maxAdd, maxFund
     	int actSum=0;
+    	int totalSum=0;
     	for (int i=0;i<action.length; i++){
-    		if(action[i]+state.states[i]>maxFund){
-    			return false;
-    		}
     		actSum+=action[i];
+    		totalSum+=action[i]+state.states[i];
     	}
-    	if(actSum>maxAdd){
+    	if(actSum>maxAdd||totalSum>maxFund){
     		return false;
     	}
         return true;
