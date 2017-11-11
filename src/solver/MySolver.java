@@ -40,7 +40,7 @@ public class MySolver implements FundingAllocationAgent {
 	    }
 	}
 
-    public List<Integer> generateAdditionalFundingAmounts(List<Integer> manufacturingFunds,
+	public List<Integer> generateAdditionalFundingAmounts(List<Integer> manufacturingFunds,
 														  int numFortnightsLeft) {
 		// Example code that allocates an additional $10 000 to each venture.
 		// TODO Replace this with your own code.
