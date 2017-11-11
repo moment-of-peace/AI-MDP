@@ -251,7 +251,18 @@ public class MySolver implements FundingAllocationAgent {
     // return true only if sum(action) < maxAdd && sum(newState) < maxFund
     private boolean isValidAction(FundState state, Integer[] action) {
         // TODO Auto-generated method stub
-        return false;
+    	//maxAdd, maxFund
+    	int actSum=0;
+    	for (int i=0;i<action.length; i++){
+    		if(action[i]+state.states[i]>maxFund){
+    			return false;
+    		}
+    		actSum+=action[i];
+    	}
+    	if(actSum>maxAdd){
+    		return false;
+    	}
+        return true;
     }
     
     // return true if the |values - previousValues| is small enough
