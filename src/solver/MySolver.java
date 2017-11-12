@@ -1,5 +1,7 @@
 package solver;
 
+import java.io.FileWriter;
+
 /**
  * COMP3702 A3 2017 Support Code
  * v1.0
@@ -50,7 +52,13 @@ public class MySolver implements FundingAllocationAgent {
             currentValues = new HashMap<FundState, Double>();
             valueIteration(previousValues, currentValues, transfer);
         } while (!converge(previousValues, currentValues));
+        try {
+            printPolicy();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
+
     // Compute initial values using max immediate rewards
     private HashMap<FundState, Double> getInitValues(int ventureNum, int maxFund) {
         ArrayList<ArrayList<Integer>> allStates = findAllStates(ventureNum, maxFund);
@@ -174,7 +182,7 @@ public class MySolver implements FundingAllocationAgent {
                 for (int k = 0; k < rewardLength; k++) {
                     double tempProb= probabilities.get(i).get(j, k);
                     //i is the venture number
-                    double profit = spec.getSalePrices().get(i)*0.6;
+                    double profit = Math.min(j, k) * spec.getSalePrices().get(i)*0.6;
                     int missed = Math.min(0, j-k);
                     profit += missed*spec.getSalePrices().get(i)*0.25;
                     
@@ -214,11 +222,6 @@ public class MySolver implements FundingAllocationAgent {
         }
     }
 
-    // find all valid actions based on current fund state
-    private ArrayList<Integer[]> allActions(FundState s) {
-        // TODO Auto-generated method stub
-        return null;
-    }
     // The expected values, i.e. sum(P(s'|s,a)*v(s'))
     private double expectedValue(ArrayList<Double[][]> transfer, FundState current, HashMap<FundState, Double> previous, 
             Integer[] action) {
@@ -271,6 +274,33 @@ public class MySolver implements FundingAllocationAgent {
             diff = diff + Math.abs(previous.get(s) - current.get(s));
         }
         return diff <= 0.0000001;
+    }
+    
+    // write policy to a file: state; action
+    private void printPolicy() throws IOException {
+        FileWriter output = new FileWriter("policy.txt");
+        for (FundState s: this.policy.keySet()) {
+            output.write(toStr(s.states));
+            Integer[] action = policy.get(s);
+            output.write("; " + toStr(action) + "; ");
+            // the result after the action
+            Integer[] result = new Integer[action.length];
+            for (int i = 0; i < action.length; i++) {
+                result[i] = s.states[i] + action[i];
+            }
+            output.write(toStr(result) + "\n");
+        }
+        output.close();
+    }
+    // convert array to string
+    private String toStr(Integer[] states) {
+        String result = "[";
+        String sep = "";
+        for (Integer i: states) {
+            result += sep + i.toString();
+            sep = ", ";
+        }
+        return result + "]";
     }
 }
 
