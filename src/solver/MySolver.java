@@ -47,13 +47,15 @@ public class MySolver implements FundingAllocationAgent {
         HashMap<FundState, Double> previousValues;
         HashMap<FundState, Double> currentValues = getInitValues(ventureNum, maxFund);
         ArrayList<Double[][]> transfer = getTransMatrix();
+        double maxError;
         do {
             previousValues = currentValues;
             currentValues = new HashMap<FundState, Double>();
-            valueIteration(previousValues, currentValues, transfer);
-        } while (!converge(previousValues, currentValues));
+            maxError = valueIteration(previousValues, currentValues, transfer);
+        } while (maxError > 0.0000001);
         try {
             printPolicy();
+            printValue(currentValues);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -196,30 +198,36 @@ public class MySolver implements FundingAllocationAgent {
         return rewards;
     }
 
-    private void valueIteration(HashMap<FundState, Double> previous, HashMap<FundState, Double> current, 
+    private double valueIteration(HashMap<FundState, Double> previous, HashMap<FundState, Double> current, 
             ArrayList<Double[][]> transfer) {
-        // TODO Auto-generated method stub
+        double error = 0;
         for (FundState s: previous.keySet()) {
             double maxValue = Double.NEGATIVE_INFINITY;
-            double reward = 0;
-            // compute immediate reward
-            for (int i = 0; i < s.states.length; i++) {
-                reward += this.rewards.get(i)[s.states[i]];
-            }
             // iterate all actions
             for (FundState state: previous.keySet()) {
-                Integer[] action = state.states;
+                Integer[] action = state.states.clone();
                 if (isValidAction(s, action)) {
+                    // compute immediate reward
+                    double reward = 0;
+                    for (int i = 0; i < s.states.length; i++) {
+                        reward += this.rewards.get(i)[s.states[i]+action[i]];
+                    }
                     double newValue = reward + this.discount*expectedValue(transfer, s, previous, action);
                     if (newValue > maxValue) {
                         // update max value and policy
                         maxValue = newValue;
                         this.policy.put(s, action);
                     }
+                    
                 }
             }
-            current.put(s, maxValue);
+            current.put(s, maxValue);   // update value function
+            double newError = Math.abs(maxValue-previous.get(s));// update max error
+            if (newError > error) {
+                error = newError;
+            }
         }
+        return error;
     }
 
     // The expected values, i.e. sum(P(s'|s,a)*v(s'))
@@ -267,7 +275,7 @@ public class MySolver implements FundingAllocationAgent {
         return true;
     }
     
-    // return true if the |values - previousValues| is small enough
+/*    // return true if the |values - previousValues| is small enough
     private boolean converge(HashMap<FundState, Double> previous, HashMap<FundState, Double> current) {
         double diff = 0;
         for (FundState s: previous.keySet()) {
@@ -275,7 +283,7 @@ public class MySolver implements FundingAllocationAgent {
         }
         return diff <= 0.0000001;
     }
-    
+*/    
     // write policy to a file: state; action
     private void printPolicy() throws IOException {
         FileWriter output = new FileWriter("policy.txt");
@@ -289,6 +297,15 @@ public class MySolver implements FundingAllocationAgent {
                 result[i] = s.states[i] + action[i];
             }
             output.write(toStr(result) + "\n");
+        }
+        output.close();
+    }
+    // write value function to a file: state; value
+    private void printValue(HashMap<FundState, Double> values) throws IOException {
+        FileWriter output = new FileWriter("value.txt");
+        for (FundState s: values.keySet()) {
+            output.write(toStr(s.states));
+            output.write("; " + values.get(s).toString() + "\n");
         }
         output.close();
     }
