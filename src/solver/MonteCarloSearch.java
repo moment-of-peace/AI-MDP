@@ -18,15 +18,15 @@ public class MonteCarloSearch {
         MonteCarloNode root = new MonteCarloNode(manufacturingFunds, fortnightsLeft);
         while (System.currentTimeMillis() < end) {
             // selection
-            MonteCarloNode node = selectNode(root);
+            MonteCarloNode likelyNode = selectNode(root);
             // expand the selected node
-            if (node.fortnightsLeft > 0) {
-                expandNode(node);
+            if (likelyNode.fortnightsLeft > 0) {
+                expandNode(likelyNode);
             }
             // simulation
-            MonteCarloNode nodeToExplore = node;
-            if (node.children.size() > 0) {
-                nodeToExplore = node.getRandomChild();
+            MonteCarloNode nodeToExplore = likelyNode;
+            if (likelyNode.children.size() > 0) {
+                nodeToExplore = likelyNode.getRandomChild();
             }
             double profit = simulateProfit(nodeToExplore);
             // back-propagation update
@@ -37,7 +37,11 @@ public class MonteCarloSearch {
 
     private MonteCarloNode selectNode(MonteCarloNode root) {
         // TODO Auto-generated method stub
-        return null;
+    	MonteCarloNode node = root;
+        while (node.children.size() != 0) {
+            node = UCT.findBestNodeWithUCT(node);
+        }
+        return node;
     }
 
     private void expandNode(MonteCarloNode node) {
