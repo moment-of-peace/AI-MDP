@@ -28,10 +28,11 @@ public class MonteCarloSearch {
 
     public List<Integer> findNext(List<Integer> manufacturingFunds, int fortnightsLeft) {
         long start = System.currentTimeMillis();
-        long end = start + 15000; // 25 milliseconds for each step
+        long end = start + 1000; // 25 milliseconds for each step
         fortnightsLeft++;
         MonteCarloNode root = new MonteCarloNode(manufacturingFunds, fortnightsLeft);
-        while (System.currentTimeMillis() < end) {
+        int i = 0;  // for debug only
+        while (System.currentTimeMillis() < end || i < 1000) {
             // selection
             MonteCarloNode likelyNode = selectNode(root);
             // expand the selected node
@@ -46,6 +47,7 @@ public class MonteCarloSearch {
             double profit = simulateProfit(nodeToExplore);
             // back-propagation update
             backPropagation(nodeToExplore, profit);
+            i++;    // for debug
         }
         return root.maxScoreChild().mcstate.fundState;
     }

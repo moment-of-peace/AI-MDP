@@ -29,6 +29,7 @@ public class MySolver implements FundingAllocationAgent {
     private int maxAdd;
     private HashMap<FundState, Integer[]> policy;
     private ArrayList<Double[]> rewards;
+    private MonteCarloSearch mcsearch;
     
     public MySolver(ProblemSpec spec) throws IOException {
         this.spec = spec;
@@ -40,6 +41,7 @@ public class MySolver implements FundingAllocationAgent {
         maxAdd = ventureManager.getMaxAdditionalFunding();
         policy = new HashMap<FundState, Integer[]>();
         rewards = new ArrayList<Double[]>();
+        mcsearch = new MonteCarloSearch(spec);
     }
     
     public void doOfflineComputation() {
@@ -111,7 +113,7 @@ public class MySolver implements FundingAllocationAgent {
         }
 */        
         // use monte carlo tree search
-        MonteCarloSearch mcsearch = new MonteCarloSearch(spec);
+        
         List<Integer> nextState = mcsearch.findNext(manufacturingFunds, numFortnightsLeft);
         for (int i = 0; i < nextState.size(); i++) {
             additionalFunding.add(nextState.get(i)-manufacturingFunds.get(i));
