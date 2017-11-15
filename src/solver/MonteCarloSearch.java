@@ -12,12 +12,12 @@ public class MonteCarloSearch {
         long start = System.currentTimeMillis();
         long end = start + 25000; // 25 milliseconds for each step
         
-        MonteCarloNode root = new MonteCarloNode(manufacturingFunds);
+        MonteCarloNode root = new MonteCarloNode(manufacturingFunds, fortnightsLeft);
         while (System.currentTimeMillis() < end) {
             // selection
             MonteCarloNode node = selectNode(root);
             // expand the selected node
-            if (fortnightsLeft > 0) {
+            if (node.fortnightsLeft > 0) {
                 expandNode(node);
             }
             // simulation
