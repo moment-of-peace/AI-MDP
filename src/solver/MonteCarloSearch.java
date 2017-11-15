@@ -34,7 +34,11 @@ public class MonteCarloSearch {
 
     private MonteCarloNode selectNode(MonteCarloNode root) {
         // TODO Auto-generated method stub
-        return null;
+    	MonteCarloNode node = root;
+        while (node.children.size() != 0) {
+            node = UCT.findBestNodeWithUCT(node);
+        }
+        return node;
     }
 
     private void expandNode(MonteCarloNode node) {
