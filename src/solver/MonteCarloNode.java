@@ -17,6 +17,12 @@ public class MonteCarloNode {
         children = new ArrayList<MonteCarloNode>();
     }
 
+    public MonteCarloNode(MonteCarloState state, int fortNights) {
+        this.mcstate = state;
+        this.fortnightsLeft = fortNights;
+        children = new ArrayList<MonteCarloNode>();
+    }
+
     public MonteCarloNode getRandomChild() {
         // TODO Auto-generated method stub
         return null;

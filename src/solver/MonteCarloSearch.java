@@ -3,6 +3,9 @@ package solver;
 import java.util.List;
 
 public class MonteCarloSearch {
+    protected int maxFund;
+    protected int maxAdd;
+    protected int numVenture;
     
     public MonteCarloSearch() {
         
@@ -38,8 +41,15 @@ public class MonteCarloSearch {
     }
 
     private void expandNode(MonteCarloNode node) {
-        // TODO Auto-generated method stub
+        List<MonteCarloState> possibleStates = node.mcstate.allPossibleStates(maxFund, maxAdd);
+        int fortNights = node.fortnightsLeft - 1;
         
+        possibleStates.forEach(state -> {
+            MonteCarloNode newNode = new MonteCarloNode(state, fortNights);
+            newNode.parent = node;
+            //newNode.getState().setPlayerNo(node.getState().getOpponent());
+            node.children.add(newNode);
+        });
     }
 
     private double simulateProfit(MonteCarloNode nodeToExplore) {
