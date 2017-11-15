@@ -58,6 +58,10 @@ public class MonteCarloSearch {
 
     private double simulateProfit(MonteCarloNode nodeToExplore) {
         // TODO Auto-generated method stub
+    	MonteCarloNode temporalNode = new MonteCarloNode(nodeToExplore);
+    	//will change with coming state change
+    	MonteCarloState temporalState = temporalNode.mcstate;
+    	List<Integer> manufacturingFund = temporalState.fundState;
         return 0;
     }
 
