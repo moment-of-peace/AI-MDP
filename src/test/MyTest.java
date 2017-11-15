@@ -26,7 +26,7 @@ public class MyTest {
         }
         int i = 0;
         System.out.println(allstates.size());
-        while (i<10000) {
+        while (i<100000) {
             MonteCarloState randnext = mcState.randNextState(maxFund, maxAdd);
             if (!isValidFund(randnext)) {
                 System.out.println(randnext);

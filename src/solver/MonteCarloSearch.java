@@ -29,7 +29,7 @@ public class MonteCarloSearch {
     public List<Integer> findNext(List<Integer> manufacturingFunds, int fortnightsLeft) {
         long start = System.currentTimeMillis();
         long end = start + 15000; // 25 milliseconds for each step
-        
+        fortnightsLeft++;
         MonteCarloNode root = new MonteCarloNode(manufacturingFunds, fortnightsLeft);
         while (System.currentTimeMillis() < end) {
             // selection
