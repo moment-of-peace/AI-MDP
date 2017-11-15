@@ -91,6 +91,7 @@ public class MonteCarloSearch {
     			
     			profit += sold*0.6*spec.getSalePrices().get(i);
     			profit -= Math.min(0, products-orders)*0.25*spec.getSalePrices().get(i);
+    			manufacturingFund.set(i, manufacturingFund.get(i)-sold);
     		}
     		
     		temporalState = temporalState.randNextState(maxFund, maxAdd);
