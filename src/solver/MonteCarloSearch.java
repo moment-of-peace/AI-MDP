@@ -62,6 +62,9 @@ public class MonteCarloSearch {
     	//will change with coming state change
     	MonteCarloState temporalState = temporalNode.mcstate;
     	List<Integer> manufacturingFund = temporalState.fundState;
+    	
+    	double profit = 0;
+
         return 0;
     }
 
