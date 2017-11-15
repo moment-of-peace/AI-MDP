@@ -111,7 +111,7 @@ public class MySolver implements FundingAllocationAgent {
         }
         
         // use monte carlo tree search
-        MonteCarloSearch mcsearch = new MonteCarloSearch();
+        MonteCarloSearch mcsearch = new MonteCarloSearch(spec);
         additionalFunding = mcsearch.findNext(manufacturingFunds, numFortnightsLeft);
         
         return additionalFunding;
