@@ -104,12 +104,13 @@ public class MySolver implements FundingAllocationAgent {
                                                           int numFortnightsLeft) {
         // Example code that allocates an additional $10 000 to each venture.
         // TODO Replace this with your own code.
-        Integer[] states = policy.get(new FundState(manufacturingFunds)); // this is using value iteration
-        List<Integer> additionalFunding = new ArrayList<Integer>();
+        List<Integer> additionalFunding;
+/*        Integer[] states = policy.get(new FundState(manufacturingFunds)); // this is using value iteration
+        additionalFunding = new ArrayList<Integer>();
         for (Integer i: states) {
             additionalFunding.add(i);
         }
-        
+*/        
         // use monte carlo tree search
         MonteCarloSearch mcsearch = new MonteCarloSearch(spec);
         additionalFunding = mcsearch.findNext(manufacturingFunds, numFortnightsLeft);

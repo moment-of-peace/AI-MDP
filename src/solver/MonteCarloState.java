@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Random;
 
 public class MonteCarloState {
-    protected List<Integer> fundState;
+    public List<Integer> fundState;
     protected int visitCount;
     protected double profit;
 
@@ -33,14 +33,14 @@ public class MonteCarloState {
     private List<List<Integer>> findAllActions(int maxAdd, int size) {
         List<List<Integer>> allActions = new ArrayList<List<Integer>>();
         if (size == 1) {
-            for (int i = 0; i < maxAdd; i++) {
+            for (int i = 0; i <= maxAdd; i++) {
                 List<Integer> action = new ArrayList<Integer>();
                 action.add(i);
                 allActions.add(action);
             }
         }
         else {
-            for (int i = 0; i < maxAdd; i++) {
+            for (int i = 0; i <= maxAdd; i++) {
                 for (List<Integer> action: findAllActions(maxAdd-i, size-1)) {
                     List<Integer> action2 = new ArrayList<Integer>(action); // necessary?
                     action2.add(i);
@@ -93,5 +93,15 @@ public class MonteCarloState {
         }
         return new MonteCarloState(newState);
     }
-
+    
+    @Override
+    public String toString() {
+        String result = "[";
+        String sep = "";
+        for (Integer i: this.fundState) {
+            result += sep + i.toString();
+            sep = ", ";
+        }
+        return result + "]";
+    }
 }

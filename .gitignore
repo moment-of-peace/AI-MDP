@@ -2,7 +2,7 @@
 *.TXT
 
 # test file
-src/test/*
+# src/test/*
 
 .classpath
 .project

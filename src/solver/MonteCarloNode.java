@@ -3,7 +3,10 @@ package solver;
  * A node in Monte Carlo Search Tree
  */
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 
 public class MonteCarloNode {
     protected MonteCarloState mcstate;
@@ -36,8 +39,13 @@ public class MonteCarloNode {
     }
 
     public MonteCarloNode getRandomChild() {
-        // TODO Auto-generated method stub
-        return null;
+        int index = new Random().nextInt(this.children.size());
+        return this.children.get(index);
+    }
+    public MonteCarloNode maxScoreChild() {
+        return Collections.max(this.children, Comparator.comparing(c -> {
+            return c.mcstate.visitCount;
+        }));
     }
 
 }

@@ -11,7 +11,7 @@ import problem.VentureManager;
 public class MonteCarloSearch {
     protected int maxFund;
     protected int maxAdd;
-    protected int numVenture;
+    //protected int numVenture;
     //var that sampleOrder needs
 	protected ProblemSpec spec;
 	protected VentureManager ventureManager;
@@ -22,11 +22,13 @@ public class MonteCarloSearch {
     	this.spec = spec;
     	ventureManager = spec.getVentureManager();
     	probabilities = spec.getProbabilities();
+    	maxFund = ventureManager.getMaxManufacturingFunds();
+    	maxAdd = ventureManager.getMaxAdditionalFunding();
     }
 
     public List<Integer> findNext(List<Integer> manufacturingFunds, int fortnightsLeft) {
         long start = System.currentTimeMillis();
-        long end = start + 25000; // 25 milliseconds for each step
+        long end = start + 15000; // 25 milliseconds for each step
         
         MonteCarloNode root = new MonteCarloNode(manufacturingFunds, fortnightsLeft);
         while (System.currentTimeMillis() < end) {
@@ -45,7 +47,7 @@ public class MonteCarloSearch {
             // back-propagation update
             backPropagation(nodeToExplore, profit);
         }
-        return null;
+        return root.maxScoreChild().mcstate.fundState;
     }
 
     private MonteCarloNode selectNode(MonteCarloNode root) {
