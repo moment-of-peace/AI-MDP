@@ -104,29 +104,16 @@ public class MySolver implements FundingAllocationAgent {
                                                           int numFortnightsLeft) {
         // Example code that allocates an additional $10 000 to each venture.
         // TODO Replace this with your own code.
-        Integer[] states = policy.get(new FundState(manufacturingFunds));
+        Integer[] states = policy.get(new FundState(manufacturingFunds)); // this is using value iteration
         List<Integer> additionalFunding = new ArrayList<Integer>();
         for (Integer i: states) {
             additionalFunding.add(i);
         }
-/*
-        int totalManufacturingFunds = 0;
-        for (int i : manufacturingFunds) {
-            totalManufacturingFunds += i;
-        }
         
-        int totalAdditional = 0;
-        for (int i = 0; i < ventureManager.getNumVentures(); i++) {
-            if (totalManufacturingFunds >= ventureManager.getMaxManufacturingFunds() ||
-                    totalAdditional >= ventureManager.getMaxAdditionalFunding()) {
-                additionalFunding.add(0);
-            } else {
-                additionalFunding.add(1);
-                totalAdditional ++;
-                totalManufacturingFunds ++;
-            }
-        }
-*/
+        // use monte carlo tree search
+        MonteCarloSearch mcsearch = new MonteCarloSearch();
+        additionalFunding = mcsearch.findNext(manufacturingFunds, numFortnightsLeft);
+        
         return additionalFunding;
     }
     
@@ -173,7 +160,7 @@ public class MySolver implements FundingAllocationAgent {
     // immediate max reward of each fund state, use index to represent fund state
     private ArrayList<Double[]> getRewards() {
         // TODO Auto-generated method stub
-        int rewardLength = ventureManager.getMaxAdditionalFunding() + 1;
+        int rewardLength = this.maxFund + 1;
         
         //rewards is predefined
      
