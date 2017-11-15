@@ -62,8 +62,12 @@ public class MonteCarloSearch {
     }
 
     private void backPropagation(MonteCarloNode nodeToExplore, double profit) {
-        // TODO Auto-generated method stub
-        
+        MonteCarloNode tempNode = nodeToExplore;
+        while (tempNode != null) {
+            tempNode.mcstate.visitCount++;
+            tempNode.mcstate.profit += profit;
+            tempNode = tempNode.parent;
+        }
     }
 
 }

@@ -39,7 +39,7 @@ public class MonteCarloState {
 
     private List<List<Integer>> findAllActions(List<Integer> actionLimit, int maxAdd, int size) {
         List<List<Integer>> allActions = new ArrayList<List<Integer>>();
-        int index = actionLimit.size() + 1 - size;
+        int index = size - 1;   // ?
         if (size == 1) {
             for (int i = 0; i < Math.min(actionLimit.get(index), maxAdd); i++) {
                 List<Integer> action = new ArrayList<Integer>();
@@ -58,6 +58,21 @@ public class MonteCarloState {
             }
         }
         return allActions;
+    }
+    
+    public MonteCarloState randNextState(int maxFund, int maxAdd) {
+        List<Integer> actionLimit = new ArrayList<Integer>();
+        for (int i = 0; i < this.fundState.size(); i++) {
+            actionLimit.add(maxFund-this.fundState.get(i));
+        }
+        
+        maxAdd = getMaxAdd(maxAdd);
+        return null;
+    }
+
+    private int getMaxAdd(int maxAdd) {
+        // TODO Auto-generated method stub
+        return 0;
     }
 
 }

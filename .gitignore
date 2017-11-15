@@ -1,6 +1,9 @@
 *.txt
 *.TXT
 
+# test file
+src/test/*
+
 .classpath
 .project
 
