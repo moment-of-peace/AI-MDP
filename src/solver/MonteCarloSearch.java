@@ -74,11 +74,12 @@ public class MonteCarloSearch {
     	MonteCarloNode temporalNode = new MonteCarloNode(nodeToExplore);
     	
     	//initial condition
+    	int fortnightsLeft = temporalNode.fortnightsLeft;
     	MonteCarloState temporalState = temporalNode.mcstate;
     	List<Integer> manufacturingFund = temporalState.fundState;
     	double profit = 0;
     	
-    	while(temporalNode.fortnightsLeft>0){
+    	while(fortnightsLeft>0){
     		List<Integer> customerOrders = sampleCustomerOrders(manufacturingFund);
     		
     		for (int i=0;i<customerOrders.size();i++){
@@ -92,6 +93,7 @@ public class MonteCarloSearch {
     		
     		temporalState = temporalState.randNextState(maxFund, maxAdd);
     		manufacturingFund = temporalState.fundState;
+    		fortnightsLeft--;
     	}
     	
         return profit;
