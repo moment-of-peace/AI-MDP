@@ -77,12 +77,18 @@ public class MonteCarloSearch {
         List<MonteCarloState> possibleStates = node.mcstate.allPossibleStates(maxFund, maxAdd);
         int fortNights = node.fortnightsLeft - 1;
         
-        possibleStates.forEach(state -> {
+        for(MonteCarloState mcState:possibleStates){
+        	MonteCarloNode newNode = new MonteCarloNode(mcState,fortNights);
+        	newNode.parent = node;
+        	node.children.add(newNode);
+        }
+        
+        /*possibleStates.forEach(state -> {
             MonteCarloNode newNode = new MonteCarloNode(state, fortNights);
             newNode.parent = node;
             //newNode.getState().setPlayerNo(node.getState().getOpponent());
             node.children.add(newNode);
-        });
+        })*/;
     }
 
     private double simulateProfit(MonteCarloNode nodeToExplore) {
