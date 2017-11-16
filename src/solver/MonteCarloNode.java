@@ -43,10 +43,20 @@ public class MonteCarloNode {
         return this.children.get(index);
     }
     public MonteCarloNode maxScoreChild() {
-        return Collections.max(this.children, Comparator.comparing(c -> {
+    	MonteCarloNode maxChild = this.children.get(0);
+    		MonteCarloNode currentNode = this.children.get(i);
+    		if(currentNode.mcstate.visitCount>maxChild.mcstate.visitCount){
+    			maxChild=currentNode;
+    		}
+    	}
+    	return maxChild;
+        /*return Collections.max(this.children, Comparator.comparing(c -> {
+        	//change to profit
             return c.mcstate.visitCount;
-        }));
+        }));*/
     }
+    
+    
 
     @Override
     // format: [fund1,fund2,...](v:vistCount, p:profit)(L: fortnigthsLeft)
