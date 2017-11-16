@@ -30,7 +30,7 @@ public class MonteCarloSearch {
 
     public List<Integer> findNext(List<Integer> manufacturingFunds, int fortnightsLeft) {
         long start = System.currentTimeMillis();
-        long end = start + 10000; // 25 milliseconds for each step
+        long end = start + 8000; // 25 milliseconds for each step
         fortnightsLeft++;
         MonteCarloNode root = new MonteCarloNode(manufacturingFunds, fortnightsLeft);
         int i = 0;  // for debug only
@@ -52,7 +52,7 @@ public class MonteCarloSearch {
             i++;    // for debug
         }
         try {
-            printMCTree(root);
+            printMCTree(root, fortnightsLeft);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -154,8 +154,8 @@ public class MonteCarloSearch {
         }
     }
     
-    private void printMCTree(MonteCarloNode root) throws IOException {
-        FileWriter output = new FileWriter("mctree.txt");
+    private void printMCTree(MonteCarloNode root, int num) throws IOException {
+        FileWriter output = new FileWriter(String.format("mctree_%d.txt", num));
         output.write("1:" + root.toString() + "\n");
         for (MonteCarloNode child: root.children) {
             printNode(output, child, " ", 2);
