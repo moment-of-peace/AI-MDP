@@ -48,4 +48,9 @@ public class MonteCarloNode {
         }));
     }
 
+    @Override
+    // format: [fund1,fund2,...](v:vistCount, p:profit)(L: fortnigthsLeft)
+    public String toString() {
+        return String.format("%s(L:%d)", mcstate.toString(), fortnightsLeft);
+    }
 }

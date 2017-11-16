@@ -1,5 +1,7 @@
 package solver;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -28,7 +30,7 @@ public class MonteCarloSearch {
 
     public List<Integer> findNext(List<Integer> manufacturingFunds, int fortnightsLeft) {
         long start = System.currentTimeMillis();
-        long end = start + 1000; // 25 milliseconds for each step
+        long end = start + 10000; // 25 milliseconds for each step
         fortnightsLeft++;
         MonteCarloNode root = new MonteCarloNode(manufacturingFunds, fortnightsLeft);
         int i = 0;  // for debug only
@@ -48,6 +50,11 @@ public class MonteCarloSearch {
             // back-propagation update
             backPropagation(nodeToExplore, profit);
             i++;    // for debug
+        }
+        try {
+            printMCTree(root);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return root.maxScoreChild().mcstate.fundState;
     }
@@ -144,6 +151,24 @@ public class MonteCarloSearch {
             tempNode.mcstate.visitCount++;
             tempNode.mcstate.profit += profit;
             tempNode = tempNode.parent;
+        }
+    }
+    
+    private void printMCTree(MonteCarloNode root) throws IOException {
+        FileWriter output = new FileWriter("mctree.txt");
+        output.write("1:" + root.toString() + "\n");
+        for (MonteCarloNode child: root.children) {
+            printNode(output, child, " ", 2);
+        }
+        output.close();
+    }
+
+    private void printNode(FileWriter output, MonteCarloNode node, String indent, int depth) throws IOException {
+        output.write(String.format("%s%d:%s\n", indent, depth, node.toString()));
+        if (node.children.size() > 0) {
+            for (MonteCarloNode child: node.children) {
+                printNode(output, child, indent+" ", depth+1);
+            }
         }
     }
 

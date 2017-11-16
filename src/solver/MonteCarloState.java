@@ -95,6 +95,7 @@ public class MonteCarloState {
     }
     
     @Override
+    // format: [fund1,fund2,...](v:vistCount, p:profit)
     public String toString() {
         String result = "[";
         String sep = "";
@@ -102,6 +103,6 @@ public class MonteCarloState {
             result += sep + i.toString();
             sep = ", ";
         }
-        return result + "]";
+        return String.format("%s](v:%d,p:%f)", result, visitCount, profit);
     }
 }
