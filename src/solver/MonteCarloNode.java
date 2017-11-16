@@ -44,6 +44,7 @@ public class MonteCarloNode {
     }
     public MonteCarloNode maxScoreChild() {
     	MonteCarloNode maxChild = this.children.get(0);
+    	for (int i=1;i<this.children.size();i++){
     		MonteCarloNode currentNode = this.children.get(i);
     		if(currentNode.mcstate.visitCount>maxChild.mcstate.visitCount){
     			maxChild=currentNode;
