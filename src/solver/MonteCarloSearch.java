@@ -13,11 +13,14 @@ import problem.VentureManager;
 public class MonteCarloSearch {
     protected int maxFund;
     protected int maxAdd;
+    protected int totalDays;
+    protected double discount;
     //protected int numVenture;
     //var that sampleOrder needs
 	protected ProblemSpec spec;
 	protected VentureManager ventureManager;
 	protected List<Matrix> probabilities;
+	protected List<Double[]> rewards;
 	protected Random random = new Random();
     
     public MonteCarloSearch(ProblemSpec spec) {
@@ -26,11 +29,13 @@ public class MonteCarloSearch {
     	probabilities = spec.getProbabilities();
     	maxFund = ventureManager.getMaxManufacturingFunds();
     	maxAdd = ventureManager.getMaxAdditionalFunding();
+    	totalDays = spec.getNumFortnights();
+    	discount = spec.getDiscountFactor();
     }
 
     public List<Integer> findNext(List<Integer> manufacturingFunds, int fortnightsLeft) {
         long start = System.currentTimeMillis();
-        long end = start + 8000; // 25 milliseconds for each step
+        long end = start + 20000; // 25 milliseconds for each step
         fortnightsLeft++;
         MonteCarloNode root = new MonteCarloNode(manufacturingFunds, fortnightsLeft);
         int i = 0;  // for debug only
@@ -51,11 +56,11 @@ public class MonteCarloSearch {
             backPropagation(nodeToExplore, profit);
             i++;    // for debug
         }
-        try {
+        /*try {
             printMCTree(root, fortnightsLeft);
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
         return root.maxScoreChild().mcstate.fundState;
     }
 
@@ -89,7 +94,14 @@ public class MonteCarloSearch {
     	MonteCarloState temporalState = temporalNode.mcstate;
     	List<Integer> manufacturingFund = temporalState.fundState;
     	double profit = 0;
-    	
+    	if (fortnightsLeft > 0) {
+    	    // immediate reward
+    	    profit += getImmediateReward(temporalState);
+            // random future reward
+            profit += discount*simulateProfit(new MonteCarloNode(temporalState.randNextState(maxFund, maxAdd), 
+                    fortnightsLeft-1));
+    	}
+    	/*
     	while(fortnightsLeft>0){
     		List<Integer> customerOrders = sampleCustomerOrders(manufacturingFund);
     		
@@ -100,18 +112,19 @@ public class MonteCarloSearch {
     			
     			profit += sold*0.6*spec.getSalePrices().get(i);
     			profit -= Math.min(0, products-orders)*0.25*spec.getSalePrices().get(i);
+    			//profit *= Math.pow(discount, totalDays-fortnightsLeft);
     			manufacturingFund.set(i, manufacturingFund.get(i)-sold);
     		}
     		
     		temporalState = temporalState.randNextState(maxFund, maxAdd);
     		manufacturingFund = temporalState.fundState;
     		fortnightsLeft--;
-    	}
+    	}*/
     	
         return profit;
     }
-    
-	/**
+
+    /**
 	 * Uses the currently loaded stochastic model to sample customer order demand.
 	 * Note that user wants may exceed the amount in the manufacturing fund
 	 * @param state The manufacturing funds allocation
@@ -148,10 +161,19 @@ public class MonteCarloSearch {
     private void backPropagation(MonteCarloNode nodeToExplore, double profit) {
         MonteCarloNode tempNode = nodeToExplore;
         while (tempNode != null) {
+            profit = profit * discount + getImmediateReward(tempNode.mcstate);
             tempNode.mcstate.visitCount++;
             tempNode.mcstate.profit += profit;
             tempNode = tempNode.parent;
         }
+    }
+    
+    private double getImmediateReward(MonteCarloState temporalState) {
+        double profit = 0;
+        for (int i = 0; i < rewards.size(); i++) {
+            profit += rewards.get(i)[temporalState.fundState.get(i)];
+        }
+        return profit;
     }
     
     private void printMCTree(MonteCarloNode root, int num) throws IOException {

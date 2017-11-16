@@ -46,6 +46,7 @@ public class MySolver implements FundingAllocationAgent {
     
     public void doOfflineComputation() {
         rewards = getRewards();
+        mcsearch.rewards = new ArrayList<Double[]>(rewards);
         HashMap<FundState, Double> previousValues;
         HashMap<FundState, Double> currentValues = getInitValues(ventureNum, maxFund);
         ArrayList<Double[][]> transfer = getTransMatrix();
