@@ -160,10 +160,13 @@ public class MonteCarloSearch {
 	
     private void backPropagation(MonteCarloNode nodeToExplore, double profit) {
         MonteCarloNode tempNode = nodeToExplore;
+        int childVisit = 1;
         while (tempNode != null) {
             profit = profit * discount + getImmediateReward(tempNode.mcstate);
             tempNode.mcstate.visitCount++;
-            tempNode.mcstate.profit += profit;
+            //tempNode.mcstate.profit += profit;
+            tempNode.mcstate.profit = (tempNode.mcstate.profit*childVisit + profit)/(childVisit+1);
+            childVisit = tempNode.mcstate.visitCount;
             tempNode = tempNode.parent;
         }
     }
