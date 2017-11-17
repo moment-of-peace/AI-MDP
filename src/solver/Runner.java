@@ -28,8 +28,10 @@ public class Runner {
 		parseCommandLine(args);
 		
 		ProblemSpec spec = new ProblemSpec(inputPath);
+		double expectedProfit = spec.getNumFortnights() * spec.getVentureManager().getMaxManufacturingFunds() * 0.5;
 
 		double totalProfit = 0;
+		int totalPass = 0;
 		
 		Simulator simulator = new Simulator(spec);
 		FundingAllocationAgent solver = null;
@@ -55,8 +57,11 @@ public class Runner {
 			for (int i = 0; i < spec.getNumFortnights(); i++) {
 				simulator.simulateStep(solver, spec.getNumFortnights() - (i+1));
 			}
-
-			totalProfit += simulator.getTotalProfit();
+			double tempProfit = simulator.getTotalProfit();
+			if (tempProfit >= expectedProfit) {
+			    totalPass++;
+			}
+			totalProfit += tempProfit;
 			System.out.println("-----------------------------------------------------------");
 		}
 		
@@ -64,6 +69,7 @@ public class Runner {
 		System.out.printf("Summary statistics from %d runs:\n", numSimulations);
 		System.out.println();
 		System.out.printf("Overall profit: %f\n", totalProfit);
+		System.out.printf("Overall pass: %f\n", totalPass);
 	}
 	
 	/**
