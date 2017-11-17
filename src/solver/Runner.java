@@ -69,7 +69,7 @@ public class Runner {
 		System.out.printf("Summary statistics from %d runs:\n", numSimulations);
 		System.out.println();
 		System.out.printf("Overall profit: %f\n", totalProfit);
-		System.out.printf("Overall pass: %f\n", totalPass);
+		System.out.printf("Overall pass: %d\n", totalPass);
 	}
 	
 	/**
@@ -86,7 +86,7 @@ public class Runner {
 	    outputPath = args[1];
 	    
 	    if (args.length > 2) {
-	        if (args[2] == "v"){
+	        if (args[2].equals("v")){
                 useMC = false;
             }
 	    }
