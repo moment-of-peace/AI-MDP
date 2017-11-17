@@ -52,7 +52,12 @@ public class VentureManager {
 			numVentures = 3;
 			maxManufacturingFunds = 8;
 			maxAdditionalFunding = 5;
-		} else {
+		} else if(name.equals("diamond")){
+			numVentures = 4;
+			maxManufacturingFunds = 10;
+			maxAdditionalFunding = 7;
+		}
+		else {
 			throw new IllegalArgumentException("Invalid customer level.");
 		}
 	}
