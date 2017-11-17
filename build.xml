@@ -1,0 +1,33 @@
+<!--A generic ant build file-->
+<project default="jar">
+
+    <property name="src" location="src"/>
+    <property name="build" location="build"/>
+    <property name="classes" location="${build}/classes"/>
+    <property name="jars" location="${build}/jars"/>
+    <property name="jarname" value="a3-7702-NullPointerException.jar"/>
+    <property name="mainclass" value="solver.MySolver"/>
+
+    <target name="init">
+        <mkdir dir="${build}"/>
+        <mkdir dir="${classes}"/>
+        <mkdir dir="${jars}"/>
+    </target>
+
+    <target name="compile" depends="init">
+        <javac includeantruntime="false" srcdir="${src}" destdir="${classes}"/>
+    </target>
+
+    <target name="jar" depends ="compile">
+        <jar jarfile="${jars}/${jarname}" basedir="${classes}">
+            <manifest>
+                <attribute name="Main-Class" value="${mainclass}"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="clean">
+        <delete dir="${build}"/>
+    </target>
+
+</project>
