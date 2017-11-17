@@ -6,34 +6,26 @@ package solver;
  * last updated by Nicholas Collins 19/10/17
  */
 
-import java.lang.reflect.Constructor;
-
 import problem.ProblemSpec;
 import problem.Simulator;
 
 public class Runner {
 	/** The path for the input file. */
-	private static String inputPath = null;
+	private static String inputPath;
 	/** The path for the output file. */
-	private static String outputPath = null;
+	private static String outputPath;
 	
 	/** The default number of simulations to run. */
-	public static int DEFAULT_NUM_SIMULATIONS = 1;
-	/** The number of simulations to run. */
-	private static int numSimulations = 0; 
-	
-	/** The default solver to use. */
-	public static String DEFAULT_SOLVER = "solver.MySolver";
-	/** The name of the solver class that will be used. */
-	private static String solverName = null;
+	private static int numSimulations = 1; 
 	
 	/** Whether to re-create the solver for every simulation. */
 	public static boolean RECREATE_SOLVER = true;
+	
+	/** Use Monte Carlo if true, otherwise use value iteration */
+	protected static boolean useMC = true; // use Monte Carlo by default
 
 	public static void main(String[] args) throws Exception {
 		parseCommandLine(args);
-		Class<?> clazz = Class.forName(solverName);
-		Constructor<?> ctor = clazz.getConstructor(ProblemSpec.class);
 		
 		ProblemSpec spec = new ProblemSpec(inputPath);
 
@@ -42,8 +34,10 @@ public class Runner {
 		Simulator simulator = new Simulator(spec);
 		FundingAllocationAgent solver = null;
 		if (!RECREATE_SOLVER) {
-			solver = (FundingAllocationAgent)ctor.newInstance(spec);
-			solver.doOfflineComputation();
+			solver = new MySolver(spec,useMC);
+			if (!useMC) {    // only value iteration needs offline computation
+			    solver.doOfflineComputation();
+			}
 		}
 		for (int simNo = 0; simNo < numSimulations; simNo++) {
 	        
@@ -52,8 +46,10 @@ public class Runner {
 			
 			simulator.reset();
 			if (RECREATE_SOLVER) {
-				solver = (FundingAllocationAgent)ctor.newInstance(spec);
-				solver.doOfflineComputation();
+				solver = new MySolver(spec,useMC);
+				if (!useMC) {    // only value iteration needs offline computation
+	                solver.doOfflineComputation();
+	            }
 			}
 			
 			for (int i = 0; i < spec.getNumFortnights(); i++) {
@@ -77,30 +73,20 @@ public class Runner {
 	 *            the array of command line arguments.
 	 */
 	public static void parseCommandLine(String args[]) {
-		for (int i = 0; i < args.length; i++) {
-			String arg = args[i].trim();
-			if (inputPath == null) {
-				inputPath = arg;
-			} else if (outputPath == null) {
-				outputPath = arg;
-			} else if (solverName == null) {
-			    solverName = arg;
-			} else if (numSimulations == 0) {
-				numSimulations = Integer.valueOf(arg);
-			} 
-		}
-		if (inputPath == null) {
-			throw new IllegalArgumentException("Input path not given.");
-		}
-		if (outputPath == null) {
-            throw new IllegalArgumentException("Output path not given.");
-		}
-		if (solverName == null) {
-		    solverName = DEFAULT_SOLVER;
-		}
-		if (numSimulations == 0) {
-			numSimulations = DEFAULT_NUM_SIMULATIONS;
-		}
+	    if (args.length < 2) {
+	        throw new IllegalArgumentException("Require at least two arguements");
+	    }
+	    inputPath = args[0];
+	    outputPath = args[1];
+	    
+	    if (args.length > 2) {
+	        if (args[2] == "v"){
+                useMC = false;
+            }
+	    }
+	    if (args.length > 3) {
+	        numSimulations = Integer.valueOf(args[3]);
+	    }
 	}
 
 }

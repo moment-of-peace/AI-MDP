@@ -15,13 +15,12 @@ public class MonteCarloSearch {
     protected int maxAdd;
     protected int totalDays;
     protected double discount;
-    //protected int numVenture;
-    //var that sampleOrder needs
 	protected ProblemSpec spec;
 	protected VentureManager ventureManager;
 	protected List<Matrix> probabilities;
 	protected List<Double[]> rewards;
 	protected Random random = new Random();
+	private int totalNodes;
     
     public MonteCarloSearch(ProblemSpec spec) {
     	this.spec = spec;
@@ -33,13 +32,16 @@ public class MonteCarloSearch {
     	discount = spec.getDiscountFactor();
     }
 
+    // main body of Monte Carlo Tree Search
     public List<Integer> findNext(List<Integer> manufacturingFunds, int fortnightsLeft) {
-        long start = System.currentTimeMillis();
-        long end = start + 20000; // 25 milliseconds for each step
+        int simuTime = 27000;
         fortnightsLeft++;
+        long start = System.currentTimeMillis();
+        long end = start + simuTime; // 25 milliseconds for each step
         MonteCarloNode root = new MonteCarloNode(manufacturingFunds, fortnightsLeft);
-        int i = 0;  // for debug only
-        while (System.currentTimeMillis() < end || i < 1000) {
+        this.totalNodes = 0;
+        while (System.currentTimeMillis() < end && this.totalNodes < 10000000 
+                && root.mcstate.visitCount < Integer.MAX_VALUE) {   // avoid overflow
             // selection
             MonteCarloNode likelyNode = selectNode(root);
             // expand the selected node
@@ -54,18 +56,18 @@ public class MonteCarloSearch {
             double profit = simulateProfit(nodeToExplore);
             // back-propagation update
             backPropagation(nodeToExplore, profit);
-            i++;    // for debug
         }
         /*try {
             printMCTree(root, fortnightsLeft);
         } catch (IOException e) {
             e.printStackTrace();
         }*/
+        //System.out.println("all nodes: " + this.totalNodes);
         return root.maxScoreChild().mcstate.fundState;
     }
 
+    // select a child node with the highest score until no child
     private MonteCarloNode selectNode(MonteCarloNode root) {
-        // TODO Auto-generated method stub
     	MonteCarloNode node = root;
         while (node.children.size() != 0) {
             node = UCT.findBestNodeWithUCT(node);
@@ -73,6 +75,7 @@ public class MonteCarloSearch {
         return node;
     }
 
+    // expand a selected node
     private void expandNode(MonteCarloNode node) {
         List<MonteCarloState> possibleStates = node.mcstate.allPossibleStates(maxFund, maxAdd);
         int fortNights = node.fortnightsLeft - 1;
@@ -82,17 +85,11 @@ public class MonteCarloSearch {
         	newNode.parent = node;
         	node.children.add(newNode);
         }
-        
-        /*possibleStates.forEach(state -> {
-            MonteCarloNode newNode = new MonteCarloNode(state, fortNights);
-            newNode.parent = node;
-            //newNode.getState().setPlayerNo(node.getState().getOpponent());
-            node.children.add(newNode);
-        })*/;
+        this.totalNodes += possibleStates.size();
     }
 
+    // after expand, simulate the futures profit from a random node among the expanded nodes
     private double simulateProfit(MonteCarloNode nodeToExplore) {
-        // TODO Auto-generated method stub
     	MonteCarloNode temporalNode = new MonteCarloNode(nodeToExplore);
     	
     	//initial condition
@@ -136,7 +133,7 @@ public class MonteCarloSearch {
 	 * @param state The manufacturing funds allocation
 	 * @return Customer orders as list of item quantities
 	 */
-	public List<Integer> sampleCustomerOrders(List<Integer> state) {
+	private List<Integer> sampleCustomerOrders(List<Integer> state) {
 		List<Integer> wants = new ArrayList<Integer>();
 		for (int k = 0; k < ventureManager.getNumVentures(); k++) {
 			int i = state.get(k);
@@ -152,7 +149,7 @@ public class MonteCarloSearch {
 	 * @param prob
 	 * @return an int with value within [0, prob.size() - 1]
 	 */
-	public int sampleIndex(List<Double> prob) {
+	private int sampleIndex(List<Double> prob) {
 		double sum = 0;
 		double r = random.nextDouble();
 		for (int i = 0; i < prob.size(); i++) {
@@ -164,6 +161,7 @@ public class MonteCarloSearch {
 		return -1;
 	}
 	
+	// after the simulation finished, back propagate and update nodes
     private void backPropagation(MonteCarloNode nodeToExplore, double profit) {
         MonteCarloNode tempNode = nodeToExplore;
         int childVisit = 1;
@@ -185,6 +183,7 @@ public class MonteCarloSearch {
         return profit;
     }
     
+    // write the entire Monte Carlo Tree into a file
     private void printMCTree(MonteCarloNode root, int num) throws IOException {
         FileWriter output = new FileWriter(String.format("mctree_%d.txt", num));
         output.write("1:" + root.toString() + "\n");
@@ -193,7 +192,7 @@ public class MonteCarloSearch {
         }
         output.close();
     }
-
+    // write nodes in MC Tree recursively
     private void printNode(FileWriter output, MonteCarloNode node, String indent, int depth) throws IOException {
         output.write(String.format("%s%d:%s\n", indent, depth, node.toString()));
         if (node.children.size() > 0) {

@@ -38,7 +38,7 @@ public class MyTest {
         }
         System.out.println(i);
         MonteCarloSearch mcts = new MonteCarloSearch(spec);
-        List<Integer> state = mcts.findNext(state1, 10);
+        List<Integer> state = mcts.findNext(state1, 0);
     }
     
     private static boolean isValidFund(MonteCarloState fund) {

@@ -15,15 +15,11 @@ public class MonteCarloNode {
     protected int fortnightsLeft;
     
     public MonteCarloNode(MonteCarloNode node){
-    	//Not sure about the constructor
     	this.mcstate = new MonteCarloState(node.mcstate.fundState);
     	if(node.parent!=null){
-    		//change when node.parent change?
     		this.parent=node.parent;
     	}
-    	//int 
     	this.fortnightsLeft = node.fortnightsLeft;
-    	//similar deep copy?
     	this.children = new ArrayList<MonteCarloNode>(node.children);
     }
     public MonteCarloNode(List<Integer> manufacturingFunds, int fortnightsLeft) {
@@ -51,14 +47,8 @@ public class MonteCarloNode {
     		}
     	}
     	return maxChild;
-        /*return Collections.max(this.children, Comparator.comparing(c -> {
-        	//change to profit
-            return c.mcstate.visitCount;
-        }));*/
     }
     
-    
-
     @Override
     // format: [fund1,fund2,...](v:vistCount, p:profit)(L: fortnigthsLeft)
     public String toString() {

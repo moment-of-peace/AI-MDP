@@ -30,8 +30,9 @@ public class MySolver implements FundingAllocationAgent {
     private HashMap<FundState, Integer[]> policy;
     private ArrayList<Double[]> rewards;
     private MonteCarloSearch mcsearch;
+    private boolean useMC;
     
-    public MySolver(ProblemSpec spec) throws IOException {
+    public MySolver(ProblemSpec spec, boolean useMC) throws IOException {
         this.spec = spec;
         ventureManager = spec.getVentureManager();
         probabilities = spec.getProbabilities();
@@ -41,30 +42,35 @@ public class MySolver implements FundingAllocationAgent {
         maxAdd = ventureManager.getMaxAdditionalFunding();
         policy = new HashMap<FundState, Integer[]>();
         rewards = new ArrayList<Double[]>();
-        mcsearch = new MonteCarloSearch(spec);
+        getRewards();
+        this.useMC = useMC;
+        if (this.useMC) {
+            mcsearch = new MonteCarloSearch(spec);
+            mcsearch.rewards = new ArrayList<Double[]>(rewards);
+        }
     }
     
     public void doOfflineComputation() {
-        rewards = getRewards();
-        mcsearch.rewards = new ArrayList<Double[]>(rewards);
         HashMap<FundState, Double> previousValues;
         HashMap<FundState, Double> currentValues = getInitValues(ventureNum, maxFund);
         ArrayList<Double[][]> transfer = getTransMatrix();
         double maxError;
+        // value iteration
         do {
             previousValues = currentValues;
             currentValues = new HashMap<FundState, Double>();
             maxError = valueIteration(previousValues, currentValues, transfer);
         } while (maxError > 0.0000001);
-        try {
+        
+        /*try {
             printPolicy();
             printValue(currentValues);
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
-    // Compute initial values using max immediate rewards
+    // Compute initial value function using immediate rewards
     private HashMap<FundState, Double> getInitValues(int ventureNum, int maxFund) {
         ArrayList<ArrayList<Integer>> allStates = findAllStates(ventureNum, maxFund);
         HashMap<FundState, Double> initValues = new HashMap<FundState, Double>();
@@ -81,7 +87,7 @@ public class MySolver implements FundingAllocationAgent {
         return initValues;
     }
     
-    // generate all possible states
+    // generate all possible states, depending on number of ventures and maximum funding
     private ArrayList<ArrayList<Integer>> findAllStates(int ventureNum, int maxFund) {
         ArrayList<ArrayList<Integer>> allStates = new ArrayList<ArrayList<Integer>>();
         if (ventureNum == 1) {
@@ -102,25 +108,6 @@ public class MySolver implements FundingAllocationAgent {
             return allStates;
         }
     }
-
-    public List<Integer> generateAdditionalFundingAmounts(List<Integer> manufacturingFunds,
-                                                          int numFortnightsLeft) {
-        // Example code that allocates an additional $10 000 to each venture.
-        // TODO Replace this with your own code.
-        List<Integer> additionalFunding = new ArrayList<Integer>();;
-        /*Integer[] states = policy.get(new FundState(manufacturingFunds)); // this is using value iteration
-        for (Integer i: states) {
-            additionalFunding.add(i);
-        }*/
-        
-        // use monte carlo tree search
-        
-        List<Integer> nextState = mcsearch.findNext(manufacturingFunds, numFortnightsLeft);
-        for (int i = 0; i < nextState.size(); i++) {
-            additionalFunding.add(nextState.get(i)-manufacturingFunds.get(i));
-        }
-        return additionalFunding;
-    }
     
     private ArrayList<Double[][]> getTransMatrix() {
         //Get estimated number of orders matrices
@@ -137,7 +124,6 @@ public class MySolver implements FundingAllocationAgent {
             
             //for each row
             for(int j=0; j<rows; j++){
- 
                 //for each column
                 for(int k=0; k<cols; k++){
                     if(k>j){
@@ -155,20 +141,17 @@ public class MySolver implements FundingAllocationAgent {
                     }
                 }
             }
-            
             transFuncs.add(transMatrix);
         }
         
         return transFuncs;
     }
 
-    // immediate max reward of each fund state, use index to represent fund state
+    // immediate reward of each possible fund state, use index to represent fund state
     private ArrayList<Double[]> getRewards() {
-        // TODO Auto-generated method stub
         int rewardLength = this.maxFund + 1;
         
         //rewards is predefined
-     
         for (int i = 0; i <probabilities.size(); i++) {
             Double[] reward = new Double[rewardLength];
             for (int j = 0; j < rewardLength; j++) {
@@ -180,7 +163,6 @@ public class MySolver implements FundingAllocationAgent {
                     int missed = Math.min(0, j-k);
                     profit += missed*spec.getSalePrices().get(i)*0.25;
                     
-                    //multiply??
                     profit *= tempProb;
                     reward[j] += profit;
                 }
@@ -190,6 +172,7 @@ public class MySolver implements FundingAllocationAgent {
         return rewards;
     }
 
+    // a single step value iteration, return the max error between old and new value functions
     private double valueIteration(HashMap<FundState, Double> previous, HashMap<FundState, Double> current, 
             ArrayList<Double[][]> transfer) {
         double error = 0;
@@ -222,7 +205,7 @@ public class MySolver implements FundingAllocationAgent {
         return error;
     }
 
-    // The expected values, i.e. sum(P(s'|s,a)*v(s'))
+    // The expected future values, i.e. sum(P(s'|s,a)*v(s'))
     private double expectedValue(ArrayList<Double[][]> transfer, FundState current, HashMap<FundState, Double> previous, 
             Integer[] action) {
         double sum = 0;
@@ -238,6 +221,7 @@ public class MySolver implements FundingAllocationAgent {
         return sum;
     }
     
+    // determine whether a owner holds valid funds
     private boolean isValidFund(FundState fund) {
         int totalFund = 0;
         for(int i=0; i<fund.states.length; i++){
@@ -266,17 +250,8 @@ public class MySolver implements FundingAllocationAgent {
     	}
         return true;
     }
-    
-/*    // return true if the |values - previousValues| is small enough
-    private boolean converge(HashMap<FundState, Double> previous, HashMap<FundState, Double> current) {
-        double diff = 0;
-        for (FundState s: previous.keySet()) {
-            diff = diff + Math.abs(previous.get(s) - current.get(s));
-        }
-        return diff <= 0.0000001;
-    }
-*/    
-    // write policy to a file: state; action
+        
+    // write policy to a file. Format of each line: state; action; state after action
     private void printPolicy() throws IOException {
         FileWriter output = new FileWriter("policy.txt");
         for (FundState s: this.policy.keySet()) {
@@ -292,7 +267,7 @@ public class MySolver implements FundingAllocationAgent {
         }
         output.close();
     }
-    // write value function to a file: state; value
+    // write value function to a file. Format of each line: state; value
     private void printValue(HashMap<FundState, Double> values) throws IOException {
         FileWriter output = new FileWriter("value.txt");
         for (FundState s: values.keySet()) {
@@ -311,10 +286,31 @@ public class MySolver implements FundingAllocationAgent {
         }
         return result + "]";
     }
+    
+    public List<Integer> generateAdditionalFundingAmounts(List<Integer> manufacturingFunds,
+            int numFortnightsLeft) {
+        List<Integer> additionalFunding = new ArrayList<Integer>();
+        // use generated policy or Monte Carlo Search to obtain the best action
+        if (this.useMC) {
+            List<Integer> nextState = mcsearch.findNext(manufacturingFunds, numFortnightsLeft);
+            for (int i = 0; i < nextState.size(); i++) {
+                additionalFunding.add(nextState.get(i)-manufacturingFunds.get(i));
+            }
+        } else {
+            Integer[] states = policy.get(new FundState(manufacturingFunds)); // this is using value iteration
+            for (Integer i: states) {
+            additionalFunding.add(i);
+            }
+        }
+        return additionalFunding;
+    }
 }
 
+/**
+ * A class representing the funds of each venture, only used for value iteration
+ */
 class FundState {
-    protected Integer[] states;
+    protected Integer[] states; // funds of each venture
     
     public FundState(Integer[] funds) {
         states = new Integer[funds.length];
