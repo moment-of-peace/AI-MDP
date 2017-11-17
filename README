@@ -1,0 +1,7 @@
+Group name: NullPointerException
+Member: Yi Liu 44028156; Hengchen Guo 44380881; Shidi Yang 43839131
+
+First, to build up, type: ant
+Then to execute, type: java -jar build/jars/a3-7702-NullPointerException.jar [QueryFile] [outputFile] [methodType] [iterationNum]
+The methodType and iterationNum is optional argument, where methodType have 2 options "m" and "v" which represent Monte Carlo Tree Search and
+Value Iteration separately. The iterationNum stands for the expect numbers of runs of the program. 
