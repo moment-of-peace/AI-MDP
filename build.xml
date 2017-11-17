@@ -6,7 +6,7 @@
     <property name="classes" location="${build}/classes"/>
     <property name="jars" location="${build}/jars"/>
     <property name="jarname" value="a3-7702-NullPointerException.jar"/>
-    <property name="mainclass" value="solver.MySolver"/>
+    <property name="mainclass" value="solver.Runner"/>
 
     <target name="init">
         <mkdir dir="${build}"/>
